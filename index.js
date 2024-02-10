@@ -65,7 +65,7 @@ app.post('/api/notes', (request, response) => {
   const maxId = Math.max(...ids)
 
   const newNote = {
-    id: maxId + 100,
+    id: maxId + 1,
     content: note.content,
     name: note.name,
     country: note.country
@@ -76,7 +76,7 @@ app.post('/api/notes', (request, response) => {
   response.status(201).json(newNote)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`servidor corriendo en el puerto ${PORT}`)
 })
