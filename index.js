@@ -1,45 +1,33 @@
 import express from 'express'
 import cors from 'cors'
+import { connectMDB } from './mongodbConnection.js'
+import { createNotes, Note } from './models.js'
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
-let notes = [
-  {
-    id: '1',
-    name: 'brutal',
-    country: 'argentina',
-    content: 'live in new york'
-  },
-  {
-    id: '2',
-    name: 'acrRustic',
-    country: 'liberia',
-    content: 'live in suecia'
-  },
-  {
-    id: '3',
-    name: 'capital',
-    country: 'suecia',
-    content: 'live in argentina'
-  }
-]
+// conectando a mongoDB..
+connectMDB()
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>')
+let notasMongo = ['']
+
+app.get('/api/notes', (req, res) => {
+  Note.find({}).then(result => {
+    console.log(result)
+    res.status(200).json(result)
+  })
 })
 
-app.get('/api/notes', (request, response) => {
-  response.json(notes)
+app.get('/', (request, response) => {
   response.send('hola desde el servidor')
 })
 
 app.get('/api/notes/:id', (request, response) => {
   const id = request.params.id
   console.log(id)
-  const note = notes.find(not => not.id === id)
+  const note = notasMongo.find(not => not.id === id)
   console.log(note)
   if (note) {
     response.json(note)
@@ -50,7 +38,7 @@ app.get('/api/notes/:id', (request, response) => {
 
 app.delete('/api/notes/:id', (request, response) => {
   const id = request.params.id
-  notes = notes.filter(note => note.id !== id)
+  notasMongo = notasMongo.filter(note => note.id !== id)
   response.status(404).end()
 })
 
@@ -61,17 +49,14 @@ app.post('/api/notes', (request, response) => {
     response.status(400).json({ error: 'el recurso no se encuentra' })
   }
 
-  const ids = notes.map(not => not.id)
-  const maxId = Math.max(...ids)
-
   const newNote = {
-    id: maxId + 1,
-    content: note.content,
     name: note.name,
-    country: note.country
+    country: note.country,
+    content: note.content
   }
 
-  notes = [...notes, newNote]
+  createNotes(newNote)
+  notasMongo = [...notasMongo, newNote]
 
   response.status(201).json(newNote)
 })
