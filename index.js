@@ -1,15 +1,16 @@
 import express from 'express'
+import mongoose from 'mongoose'
 import cors from 'cors'
 import { connectMDB } from './mongodbConnection.js'
 import { createNotes, Note } from './models.js'
 
 const app = express()
 
-app.use(cors())
-app.use(express.json())
-
 // conectando a mongoDB..
 connectMDB()
+
+app.use(cors())
+app.use(express.json())
 
 let notasMongo = ['']
 
@@ -17,6 +18,7 @@ app.get('/api/notes', (req, res) => {
   Note.find({}).then(result => {
     console.log(result)
     res.status(200).json(result)
+    mongoose.connection.close()
   })
 })
 
