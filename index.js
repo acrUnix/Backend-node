@@ -1,11 +1,12 @@
+import dotenv from 'dotenv'
 import express from 'express'
-import mongoose from 'mongoose'
 import cors from 'cors'
 import { connectMDB } from './mongodbConnection.js'
 import { createNotes, Note } from './models.js'
 
 const app = express()
 
+dotenv.config()
 // conectando a mongoDB..
 connectMDB()
 
@@ -18,7 +19,6 @@ app.get('/api/notes', (req, res) => {
   Note.find({}).then(result => {
     console.log(result)
     res.status(200).json(result)
-    mongoose.connection.close()
   })
 })
 
@@ -63,7 +63,7 @@ app.post('/api/notes', (request, response) => {
   response.status(201).json(newNote)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`servidor corriendo en el puerto ${PORT}`)
 })

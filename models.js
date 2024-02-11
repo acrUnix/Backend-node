@@ -6,6 +6,14 @@ const notasSchema = new Schema({
   content: String
 })
 
+notasSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id
+    delete returnedObject.__v
+    delete returnedObject._id
+  }
+})
+
 export const Note = model('Note', notasSchema)
 
 export const createNotes = (datos) => {
