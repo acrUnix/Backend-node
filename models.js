@@ -16,15 +16,16 @@ notasSchema.set('toJSON', {
 
 export const Note = model('Note', notasSchema)
 
-export const createNotes = (datos) => {
-  const nota = new Note({
-    name: datos.name,
-    country: datos.country,
-    content: datos.content
-  })
-  nota.save()
-    .then(result => {
-      console.log(result)
+export const createNotes = async (datos, next) => {
+  try {
+    const nota = new Note({
+      name: datos.name,
+      country: datos.country,
+      content: datos.content
     })
-    .catch(err => { console.error(err) })
+    const newNota = await nota.save()
+    return newNota
+  } catch (error) {
+    next(error)
+  }
 }
