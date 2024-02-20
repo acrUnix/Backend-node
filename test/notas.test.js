@@ -45,6 +45,19 @@ test('enviar un post al server', async () => {
   expect(response.body).toHaveLength(initialNotes.length)
 })
 
+test('to delete a note', async () => {
+  const { response: firstResponse } = await getAllNotes()
+  const { body: note } = firstResponse
+  const noteToDelete = note[0]
+
+  await api
+    .delete(`/api/notes/${noteToDelete.id}`)
+    .expect(202)
+
+  const { response: secondResponse } = await getAllNotes()
+  expect(secondResponse.body).toHaveLength(initialNotes - 1)
+})
+
 afterAll(() => {
   mongoose.connection.close()
   server.close()
