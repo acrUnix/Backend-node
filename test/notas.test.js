@@ -5,12 +5,10 @@ import { initialNotes, api, getAllNotes } from './helpers.js'
 
 beforeEach(async () => {
   await Note.deleteMany({})
-
-  const note1 = new Note(initialNotes[0])
-  note1.save()
-
-  const note2 = new Note(initialNotes[1])
-  note2.save()
+  for (const note of initialNotes) {
+    const noteCreated = new Note(note)
+    await noteCreated.save()
+  }
 })
 
 test('resultado en json', async () => {
@@ -52,10 +50,11 @@ test('to delete a note', async () => {
 
   await api
     .delete(`/api/notes/${noteToDelete.id}`)
-    .expect(202)
+    .expect(204)
 
-  const { response: secondResponse } = await getAllNotes()
-  expect(secondResponse.body).toHaveLength(initialNotes - 1)
+  const { contents, response: secondResponse } = await getAllNotes()
+  expect(secondResponse.body).toHaveLength(initialNotes.length - 1)
+  expect(contents).not.toContain(noteToDelete.content)
 })
 
 afterAll(() => {
