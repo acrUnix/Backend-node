@@ -1,21 +1,14 @@
-import mongoose from 'mongoose'
+import { Note } from '../models/note.js'
 import { server } from '../index.js'
-import { Note } from '../models.js'
+import { mongoose } from 'mongoose'
 import { initialNotes, api, getAllNotes } from './helpers.js'
 
 beforeEach(async () => {
   await Note.deleteMany({})
-  for (const note of initialNotes) {
-    const noteCreated = new Note(note)
-    await noteCreated.save()
-  }
-})
-
-test('resultado en json', async () => {
-  await api
-    .get('/api/notes')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+  initialNotes.map(async (note) => {
+    const newNote = new Note(note)
+    await newNote.save()
+  })
 })
 
 test('todas las notas notes', async () => {
@@ -28,6 +21,13 @@ test('nota sobre enzo y el automotor', async () => {
   expect(contents).toContain('importancia para la cultura internacional')
 })
 
+test('resultado en json', async () => {
+  await api
+    .get('/api/notes/allnotes')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+})
+
 test('enviar un post al server', async () => {
   const newNot = {
     name: 'jeen',
@@ -35,7 +35,7 @@ test('enviar un post al server', async () => {
   }
 
   await api
-    .post('/api/notes')
+    .post('/api/notes/newnote')
     .send(newNot)
     .expect(400)
 
@@ -49,7 +49,7 @@ test('to delete a note', async () => {
   const noteToDelete = note[0]
 
   await api
-    .delete(`/api/notes/${noteToDelete.id}`)
+    .delete(`/api/notes/deletenote/${noteToDelete.id}`)
     .expect(204)
 
   const { contents, response: secondResponse } = await getAllNotes()
@@ -57,7 +57,7 @@ test('to delete a note', async () => {
   expect(contents).not.toContain(noteToDelete.content)
 })
 
-afterAll(() => {
-  mongoose.connection.close()
+afterAll(async () => {
+  await mongoose.connection.close()
   server.close()
 })

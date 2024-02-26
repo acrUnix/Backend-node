@@ -1,5 +1,4 @@
 import { average } from '../utils/forTesting'
-
 describe('average', () => {
   test('of one value is the itself', () => {
     expect(average([1])).toBe(1)

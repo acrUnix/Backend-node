@@ -15,11 +15,21 @@ const initialNotes = [{
 }]
 
 const getAllNotes = async () => {
-  const response = await api.get('/api/notes')
+  const response = await api.get('/api/notes/allnotes')
+  const { body: notes } = response
+  const contents = notes.map(note => note.content)
   return {
     response,
-    contents: response.body.map(note => note.content)
+    contents
   }
 }
 
-export { api, initialNotes, getAllNotes }
+const getAllUsers = async () => {
+  const response = await api.get('/api/users/allusers')
+  const { body: users } = response
+  return {
+    response,
+    users
+  }
+}
+export { api, initialNotes, getAllNotes, getAllUsers }

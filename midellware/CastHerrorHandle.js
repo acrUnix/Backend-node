@@ -1,4 +1,4 @@
-export const castHerror = (error, request, response, next) => {
+export const castHerror = (error, request, response) => {
   console.error(error)
   console.log(error.name)
   if (error.name === 'CastError') {
