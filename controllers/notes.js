@@ -1,10 +1,13 @@
 import express from 'express'
 import { Note } from '../models/note.js'
+import { User } from '../models/user.js'
 const notesRouter = express.Router()
 
 notesRouter.get('/allnotes', async (request, response, next) => {
   try {
-    const allnotes = await Note.find({})
+    const allnotes = await Note.find({}).populate('users', {
+      notes: 0
+    })
     console.log(allnotes)
     return response.status(200).json(allnotes).end()
   } catch (error) {
@@ -64,20 +67,23 @@ notesRouter.delete('/delete/:id', async (request, response, next) => {
 })
 
 notesRouter.post('/newnote', async (request, response, next) => {
-  const note = request.body
-  if (!note || !note.content) {
+  const { name, country, content, userId } = request.body
+  if (!name || !country || !content || !userId) {
     return response.status(400).json({ error: 'el recurso no se encuentra' }).end()
   } else {
-    const newNote = {
-      name: note.name,
-      country: note.country,
-      content: note.content
-    }
     try {
-      const createdNote = new Note(newNote)
+      const user = await User.findById(userId)
+      const createdNote = new Note({
+        name,
+        country,
+        content,
+        users: user._id
+      })
       const savedNote = await createdNote.save()
-      console.log('se ha creado una nota:')
-      console.log(newNote)
+      console.log('nota creada con exito:')
+      console.log(savedNote)
+      user.notes = user.notes.concat(createdNote._id)
+      await user.save()
       return response.status(201).json(savedNote).end()
     } catch (error) {
       next(error)

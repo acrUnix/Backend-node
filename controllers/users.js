@@ -5,7 +5,9 @@ const usersRouter = express.Router()
 
 usersRouter.get('/allusers', async (request, response, next) => {
   try {
-    const allUsers = await User.find({})
+    const allUsers = await User.find({}).populate('notes', {
+      users: 0
+    })
     console.log(allUsers)
     return response.status(200).json(allUsers).end()
   } catch (error) {
@@ -27,10 +29,10 @@ usersRouter.post('/newuser', async (request, response, next) => {
         name,
         passwordHash
       })
-      await user.save()
+      const createdUser = await user.save()
       console.log('user creado:')
-      console.log(user)
-      return response.status(200).json(user).end()
+      console.log(createdUser)
+      return response.status(200).json(createdUser).end()
     }
   } catch (error) {
     next(error)

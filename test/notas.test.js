@@ -49,8 +49,8 @@ test('to delete a note', async () => {
   const noteToDelete = note[0]
 
   await api
-    .delete(`/api/notes/deletenote/${noteToDelete.id}`)
-    .expect(204)
+    .delete(`/api/notes/delete/${noteToDelete.id}`)
+    .expect(200)
 
   const { contents, response: secondResponse } = await getAllNotes()
   expect(secondResponse.body).toHaveLength(initialNotes.length - 1)
