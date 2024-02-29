@@ -1,8 +1,8 @@
-POST http://localhost:3001/api/users
+POST http://localhost:3001/api/users/newuser
 Content-Type: application/json
 
 {
-    "username": "pinguino",
-    "name": "linux",
-    "password": "eradehielo"
+    "username": "sistem-v",
+    "name": "unix",
+    "password": "codificado"
 }
