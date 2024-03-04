@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose'
 
 const noteSchema = new Schema({
+  pos: Number,
   name: String,
   country: String,
   content: String,

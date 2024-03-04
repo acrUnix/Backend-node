@@ -1,7 +1,12 @@
+import dotenv from 'dotenv'
 import express from 'express'
 import { Note } from '../models/note.js'
 import { User } from '../models/user.js'
+import { verifyToken } from '../midellware/verifyToken.js'
+
 const notesRouter = express.Router()
+
+dotenv.config()
 
 notesRouter.get('/allnotes', async (request, response, next) => {
   try {
@@ -15,7 +20,7 @@ notesRouter.get('/allnotes', async (request, response, next) => {
   }
 })
 
-notesRouter.put('/:id', async (request, response, next) => {
+notesRouter.put('/:id', verifyToken, async (request, response, next) => {
   const { id } = request.params
   const note = request.body
   const newNote = {
@@ -27,22 +32,22 @@ notesRouter.put('/:id', async (request, response, next) => {
     const noteToUpdate = await Note.findByIdAndUpdate(id, newNote, { new: true })
     console.log('nueva nota modificada: ')
     console.log(noteToUpdate)
-    return response.status(200).json(noteToUpdate).end()
+    return response.sendStatus(200).json(noteToUpdate).end()
   } catch (error) {
     next(error)
   }
 })
 
-notesRouter.get('/:id', async (request, response, next) => {
+notesRouter.get('/:id', verifyToken, async (request, response, next) => {
   const { id } = request.params
   try {
     const note = await Note.findById(id)
     if (note) {
       console.log('se encontro la siguiente nota:')
       console.log(note)
-      return response.status(200).json(note).end()
+      return response.sendStatus(200).json(note).end()
     } else {
-      return response.status(404).end()
+      return response.sendStatus(404).end()
     }
   } catch (error) {
     next(error)
@@ -50,41 +55,49 @@ notesRouter.get('/:id', async (request, response, next) => {
 }
 )
 
-notesRouter.delete('/delete/:id', async (request, response, next) => {
+notesRouter.delete('/delete/:id', verifyToken, async (request, response, next) => {
   const { id } = request.params
   try {
     const note = await Note.findByIdAndDelete(id)
 
     if (!note) {
       return response.status(204).json({ message: 'no existe la nota' }).end()
+    } else {
+      console.log('se ha eliminado la siguiente nota:')
+      console.log(note)
+      return response.status(200).json({ message: 'nota eliminada con exito' }).end()
     }
-    console.log('se ha eliminado la siguiente nota:')
-    console.log(note)
-    return response.status(200).json({ message: 'nota eliminada con exito' }).end()
   } catch (error) {
     next(error)
   }
 })
 
-notesRouter.post('/newnote', async (request, response, next) => {
+notesRouter.post('/newnote', verifyToken, async (request, response, next) => {
   const { name, country, content, userId } = request.body
+  const { authenticatedUser } = request
+
   if (!name || !country || !content || !userId) {
-    return response.status(400).json({ error: 'el recurso no se encuentra' }).end()
+    return response.status(400).json({ error: 'datos insuficientes' }).end()
   } else {
     try {
       const user = await User.findById(userId)
+      const noteId = await Note.find({})
+      const index = noteId.map(not => not.id)
       const createdNote = new Note({
+        pos: index.length + 1,
         name,
         country,
         content,
         users: user._id
       })
-      const savedNote = await createdNote.save()
+      await createdNote.save()
       console.log('nota creada con exito:')
-      console.log(savedNote)
+      console.log('identidad:', authenticatedUser)
+      console.log('contenido:', createdNote)
       user.notes = user.notes.concat(createdNote._id)
       await user.save()
-      return response.status(201).json(savedNote).end()
+
+      return response.json({ authenticatedUser, createdNote }).end()
     } catch (error) {
       next(error)
     }

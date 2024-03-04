@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/login/loginuser
+Content-Type: application/json
+
+{
+	"username": "astro1",
+	"password": "encriptado1"
+}

@@ -14,6 +14,6 @@ export const connectMDB = async () => {
     connectionString = MONGO_DB_URI
   }
   await mongoose.connect(connectionString).then(() => {
-    console.log('conectado a base de datos!')
+    console.log('conectado a base de datos..')
   }).catch(err => console.error(err))
 }

@@ -1,7 +1,10 @@
-POST http://localhost:3001/api/notes
+POST http://localhost:3001/api/notes/newnote
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVG9rZW4iOnsidXNlcm5hbWUiOiJhc3RybzEiLCJ1c2VyaWQiOiI2NWRkNWFkMWU1Nzg2ZDk3MmIwYTIwODUifSwiaWF0IjoxNzA5MzM5MTczfQ.TDvb4RoI7NabvdQtB-CRtrOWD9fDuuYwVMvMuwLDGm0
 
 {
-    "content": "primer contenido creado",
-    "important": true
+	"name": "teotia de nother",
+	"country": "fisica alemana",
+	"content": "eroe de la fisica de particulas",
+	"userId": "65dd5ad1e5786d972b0a2085"
 }
