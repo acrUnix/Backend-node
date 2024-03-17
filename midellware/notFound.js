@@ -1,3 +1,4 @@
 export const notFound = (request, response, next) => {
-  response.status(404).end()
+  console.log(request.body)
+  response.status(404)
 }

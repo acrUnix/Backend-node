@@ -32,6 +32,7 @@ loginRouter.post('/loginuser', async (request, response) => {
       return response.json({
         name: user.name,
         username: user.username,
+        id: user.id,
         token
       })
     } else {

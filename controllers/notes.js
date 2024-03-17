@@ -10,9 +10,7 @@ dotenv.config()
 
 notesRouter.get('/allnotes', async (request, response, next) => {
   try {
-    const allnotes = await Note.find({}).populate('users', {
-      notes: 0
-    })
+    const allnotes = await Note.find({}).populate('users')
     console.log(allnotes)
     return response.status(200).json(allnotes).end()
   } catch (error) {
@@ -20,34 +18,36 @@ notesRouter.get('/allnotes', async (request, response, next) => {
   }
 })
 
-notesRouter.put('/:id', verifyToken, async (request, response, next) => {
+notesRouter.put('/update/:id', async (request, response, next) => {
   const { id } = request.params
   const note = request.body
+  console.log('desde react: ', note)
   const newNote = {
-    name: note.name,
-    country: note.country,
-    content: note.content
+    title: note.title,
+    gender: note.gender,
+    content: note.content,
+    important: note.important
   }
   try {
     const noteToUpdate = await Note.findByIdAndUpdate(id, newNote, { new: true })
-    console.log('nueva nota modificada: ')
-    console.log(noteToUpdate)
-    return response.sendStatus(200).json(noteToUpdate).end()
+    // console.log('nueva nota modificada: ')
+    // console.log(noteToUpdate)
+    return response.status(200).json(noteToUpdate)
   } catch (error) {
     next(error)
   }
 })
 
-notesRouter.get('/:id', verifyToken, async (request, response, next) => {
+notesRouter.get(':id', verifyToken, async (request, response, next) => {
   const { id } = request.params
   try {
     const note = await Note.findById(id)
     if (note) {
       console.log('se encontro la siguiente nota:')
       console.log(note)
-      return response.sendStatus(200).json(note).end()
+      return response.status(200).json(note).end()
     } else {
-      return response.sendStatus(404).end()
+      return response.status(404).end()
     }
   } catch (error) {
     next(error)
@@ -73,11 +73,10 @@ notesRouter.delete('/delete/:id', verifyToken, async (request, response, next) =
 })
 
 notesRouter.post('/newnote', verifyToken, async (request, response, next) => {
-  const { name, country, content, userId } = request.body
-  const { authenticatedUser } = request
+  const { title, gender, content, important, userId } = request.body
 
-  if (!name || !country || !content || !userId) {
-    return response.status(400).json({ error: 'datos insuficientes' }).end()
+  if (!title || !gender || !content || !important || !userId) {
+    return response.status(400).json({ error: 'datos insuficientes' })
   } else {
     try {
       const user = await User.findById(userId)
@@ -85,19 +84,19 @@ notesRouter.post('/newnote', verifyToken, async (request, response, next) => {
       const index = noteId.map(not => not.id)
       const createdNote = new Note({
         pos: index.length + 1,
-        name,
-        country,
+        title,
+        gender,
         content,
+        important,
         users: user._id
       })
       await createdNote.save()
       console.log('nota creada con exito:')
-      console.log('identidad:', authenticatedUser)
       console.log('contenido:', createdNote)
       user.notes = user.notes.concat(createdNote._id)
       await user.save()
 
-      return response.json({ authenticatedUser, createdNote }).end()
+      return response.json({ createdNote }).end()
     } catch (error) {
       next(error)
     }

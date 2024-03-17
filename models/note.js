@@ -2,9 +2,10 @@ import { Schema, model } from 'mongoose'
 
 const noteSchema = new Schema({
   pos: Number,
-  name: String,
-  country: String,
+  title: String,
+  gender: String,
   content: String,
+  important: Boolean,
   users: [{
     type: Schema.Types.ObjectId,
     ref: 'User'
